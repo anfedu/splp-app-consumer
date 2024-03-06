@@ -1,88 +1,150 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { TrashIcon } from "@heroicons/react/24/solid";
+import { IconButton, useToast } from "@chakra-ui/react";
+import Addedit from "@/components/addedit";
 
 interface Props {}
+interface ProvinceInterface {}
 
 function Consumer(props: Props) {
   const {} = props;
 
-  const [data, setData] = useState([]);
   const options = [
-    { label: "Provinsi", value: "province" },
-    { label: "Kabupaten", value: "regency" },
-    { label: "Kecamatan", value: "district" },
-    { label: "Kelurahan", value: "village" },
+    { label: "Provinsi", value: "province/datatable" },
+    // { label: "Kabupaten", value: "regency/datatable" },
+    // { label: "Kecamatan", value: "district/datatable" },
+    // { label: "Kelurahan", value: "village/datatable" },
   ];
-  const [optionValue, setOptionValue] = useState("province");
+  const toast = useToast();
 
-  const [loading, setLoading] = useState(true);
-  async function fetchData() {
-    setLoading(true);
+  const [prefix, setPrefix] = useState("province/datatable");
+
+  const url = "https://localhost:8243/sampel-api-provider/1";
+  const headers: any = {
+    "Content-Type": "application/json",
+    "Internal-Key":
+      "eyJraWQiOiJnYXRld2F5X2NlcnRpZmljYXRlX2FsaWFzIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJhZG1pbkBjYXJib24uc3VwZXIiLCJpc3MiOiJodHRwczpcL1wvbG9jYWxob3N0Ojk0NDNcL29hdXRoMlwvdG9rZW4iLCJrZXl0eXBlIjoiUFJPRFVDVElPTiIsInN1YnNjcmliZWRBUElzIjpbeyJzdWJzY3JpYmVyVGVuYW50RG9tYWluIjpudWxsLCJuYW1lIjoic2FtcGVsLWFwaS1wcm92aWRlciIsImNvbnRleHQiOiJcL3NhbXBlbC1hcGktcHJvdmlkZXJcLzEiLCJwdWJsaXNoZXIiOiJhZG1pbiIsInZlcnNpb24iOiIxIiwic3Vic2NyaXB0aW9uVGllciI6bnVsbH1dLCJleHAiOjE3MDk3Mzg3NDUsInRva2VuX3R5cGUiOiJJbnRlcm5hbEtleSIsImlhdCI6MTcwOTY3ODc0NSwianRpIjoiN2EzOWVkN2ItOGUwNi00ZWRhLTg4MGQtYWE3YjViNzZhNTJjIn0.foj1SFduvgxUHuRIOiuwIw5-ejoV1Ybx1BQNrDSaCWFs48yOtMLjrTbso-HYZT70DHx5G8_kz-1WOKJFYsMkjXONFt4ZLZ-CQhlGfmTT4WhxoBZDPcArkzb9BlRc58qTvabKdVzcoj06-L4qOwizq4Siks_ok5rGPfWtuSLQ4uTnjlCaQm8fKPH-uS0OJVaTH4Lo6JM1pMcOXXcUys9nHxWSeaUXIgDGmlUHrVrl7GGeyL7mWmw8iWW6qeTadJ9Ier-cwzlAY5pSGGb3s-2VbknSRHhH72uYd4wsCwzq8h9Lq-G3kC1GYl7H-lDxvfmM7_1hj0fvZDN5wwKAUEnOLg",
+    apikey:
+      "eyJraWQiOiJnYXRld2F5X2NlcnRpZmljYXRlX2FsaWFzIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJhZG1pbkBjYXJib24uc3VwZXIiLCJpc3MiOiJodHRwczpcL1wvbG9jYWxob3N0Ojk0NDNcL29hdXRoMlwvdG9rZW4iLCJrZXl0eXBlIjoiUFJPRFVDVElPTiIsInN1YnNjcmliZWRBUElzIjpbeyJzdWJzY3JpYmVyVGVuYW50RG9tYWluIjpudWxsLCJuYW1lIjoic2FtcGVsLWFwaS1wcm92aWRlciIsImNvbnRleHQiOiJcL3NhbXBlbC1hcGktcHJvdmlkZXJcLzEiLCJwdWJsaXNoZXIiOiJhZG1pbiIsInZlcnNpb24iOiIxIiwic3Vic2NyaXB0aW9uVGllciI6bnVsbH1dLCJleHAiOjE3MDk3Mzg3NDUsInRva2VuX3R5cGUiOiJJbnRlcm5hbEtleSIsImlhdCI6MTcwOTY3ODc0NSwianRpIjoiN2EzOWVkN2ItOGUwNi00ZWRhLTg4MGQtYWE3YjViNzZhNTJjIn0.foj1SFduvgxUHuRIOiuwIw5-ejoV1Ybx1BQNrDSaCWFs48yOtMLjrTbso-HYZT70DHx5G8_kz-1WOKJFYsMkjXONFt4ZLZ-CQhlGfmTT4WhxoBZDPcArkzb9BlRc58qTvabKdVzcoj06-L4qOwizq4Siks_ok5rGPfWtuSLQ4uTnjlCaQm8fKPH-uS0OJVaTH4Lo6JM1pMcOXXcUys9nHxWSeaUXIgDGmlUHrVrl7GGeyL7mWmw8iWW6qeTadJ9Ier-cwzlAY5pSGGb3s-2VbknSRHhH72uYd4wsCwzq8h9Lq-G3kC1GYl7H-lDxvfmM7_1hj0fvZDN5wwKAUEnOLg",
+  };
+
+  const body = JSON.stringify({
+    enablePage: true,
+    start: 0,
+    length: 10,
+  });
+
+  const [status, setStatus] = useState("loading");
+  const [data, setData] = useState([]);
+  const fetchData = async () => {
+    setStatus("loading");
     try {
-      const url = "https://localhost:8243/sampel-api-provider/1";
-      await fetch(url + "/" + optionValue, {
+      await fetch(`${url}/${prefix}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey:
-            "eyJ4NXQiOiJOVGRtWmpNNFpEazNOalkwWXpjNU1tWm1PRGd3TVRFM01XWXdOREU1TVdSbFpEZzROemM0WkE9PSIsImtpZCI6ImdhdGV3YXlfY2VydGlmaWNhdGVfYWxpYXMiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbkBjYXJib24uc3VwZXIiLCJhcHBsaWNhdGlvbiI6eyJvd25lciI6ImFkbWluIiwidGllclF1b3RhVHlwZSI6bnVsbCwidGllciI6IjEwUGVyTWluIiwibmFtZSI6InNwbHAtYXBwLWNvbnN1bWVyIiwiaWQiOjExMCwidXVpZCI6IjgzMGNkNDgwLWIzMzctNGNhYS05MGUzLTUzNDY2Y2I4ZTcwZiJ9LCJpc3MiOiJodHRwczpcL1wvbG9jYWxob3N0Ojk0NDNcL29hdXRoMlwvdG9rZW4iLCJ0aWVySW5mbyI6eyJVbmxpbWl0ZWQiOnsidGllclF1b3RhVHlwZSI6InJlcXVlc3RDb3VudCIsImdyYXBoUUxNYXhDb21wbGV4aXR5IjowLCJncmFwaFFMTWF4RGVwdGgiOjAsInN0b3BPblF1b3RhUmVhY2giOnRydWUsInNwaWtlQXJyZXN0TGltaXQiOjAsInNwaWtlQXJyZXN0VW5pdCI6bnVsbH19LCJrZXl0eXBlIjoiUFJPRFVDVElPTiIsInN1YnNjcmliZWRBUElzIjpbeyJzdWJzY3JpYmVyVGVuYW50RG9tYWluIjoiY2FyYm9uLnN1cGVyIiwibmFtZSI6InNhbXBlbC1hcGktcHJvdmlkZXIiLCJjb250ZXh0IjoiXC9zYW1wZWwtYXBpLXByb3ZpZGVyXC8xIiwicHVibGlzaGVyIjoiYWRtaW4iLCJ2ZXJzaW9uIjoiMSIsInN1YnNjcmlwdGlvblRpZXIiOiJVbmxpbWl0ZWQifV0sInRva2VuX3R5cGUiOiJhcGlLZXkiLCJpYXQiOjE3MDkyMTU0NjQsImp0aSI6ImIxNzIxYmVlLTJhOGEtNDBkMS04NjY1LWU0NzQ5NjQ3ZDQzMiJ9.CXCcGMGwMqWr6khHe37Uib9M8VdAr4fA1s_ojV_QsiDKX0oFUQNXfEVRlAjI6Oqzf9dybicFPNOXtXY_PI_TOzpks40yfMfLGmxdpdJaavyh3ctTydPH7UDE3CMKW6C3CKdshgYoLfZGBpDLGRhOH8ss4QIJ7Qs2z6AHEGrrbpF0Awe4zBexvSArQepKjMgMMSLl0KjRymNjY0iYR9JhcT0YEt7TfRFs8SOJnoaAs3IfITpfXfsyf6rWU4OEUtleEzBL_C9ApkSsdac2oKSM-MtTFNHEpYm2fRnShzNdv1_P6TqvIbbfjdCtjOaID8j1ZhNhzaQ-Lk2habT_D92bsA==",
-        },
-        body: JSON.stringify({
-          enablePage: "true",
-          // start: 0,
-          // length: 10,
-        }),
+        headers,
+        body,
       })
-        .then((response) => response.json())
-        .then((data) => {
-          setLoading(false);
-          setData(data?.data?.data);
+        .then((res) => res.json())
+        .then((res) => {
+          setStatus("success");
+          toast({
+            title: "Success",
+            description: "Get data successfully",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+          setData(res?.data?.data);
+        })
+        .catch((err) => {
+          // console.log(err, "<-- iki err");
+          setStatus("error");
+          toast({
+            title: "Error",
+            description: err.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
         });
-    } catch (error: any) {
-      setLoading(false);
-      console.log(error.message);
+    } catch (error) {
+      setStatus("done");
     }
-  }
+  };
 
   useEffect(() => {
     fetchData();
-  }, [optionValue]);
+  }, []);
+
+  const [loadingDelete, setLoadingDelete] = useState(null);
+  const deleteData = async (id: any) => {
+    try {
+      setLoadingDelete(id);
+      await fetch(`${url}/province/${id}`, { headers, method: "DELETE" })
+        .then((res) => res.json())
+        .then((res) => {
+          console.log(res, "<-- iki res ne ");
+          setLoadingDelete(null);
+        })
+        .catch((err) => {
+          setLoadingDelete(null);
+          toast({
+            title: "Error",
+            description: "Delete data failed",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        });
+    } catch (error) {}
+  };
 
   return (
     <div className="mt-10">
-      <div className="mb-8 gap-5 flex">
+      <div className="mb-8 gap-5 flex justify-between">
         {options.map((item: any, key: any) => (
           <button
             key={key}
-            className={`h-[50px] px-5 border border-blue-50 rounded-full cursor-pointer hover:bg-opacity-0.9 ${
-              optionValue === item.value ? "bg-gray-500" : ""
+            className={`h-[50px] rounded-lg cursor-pointer hover:bg-opacity-0.9 text-xl font-semibold text-gray-600 ${
+              prefix === item.value ? "" : ""
             }`}
-            onClick={() => setOptionValue(item.value)}
+            onClick={() => setPrefix(item.value)}
           >
             {item.label}
           </button>
         ))}
+
+        <Addedit />
       </div>
 
-      {loading ? (
+      {status === "loading" ? (
         "Loading ..."
       ) : (
-        <table className="table-auto">
-          <thead>
-            <tr>
-              <th className="border border-white p-5">ID</th>
-              <th className="border border-white p-5">Name</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
             {data?.map((item: any, key: any) => (
-              <tr key={key}>
-                <td className="border border-white p-5">{item.id}</td>
-                <td className="border border-white p-5">{item.name}</td>
-              </tr>
+              <div
+                key={key}
+                className="bg-blue-100 p-5 rounded-lg flex justify-between items-center"
+              >
+                <div className="font-normal">{item?.name}</div>
+
+                <IconButton
+                  aria-label="trash"
+                  variant="ghost"
+                  isLoading={item.id === loadingDelete}
+                  onClick={() => deleteData(item.id)}
+                >
+                  <TrashIcon className="w-5 text-red-400 cursor-pointer hover:bg-opacity-0.7" />
+                </IconButton>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
     </div>
   );
