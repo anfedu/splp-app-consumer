@@ -20,7 +20,8 @@ function Consumer(props: Props) {
 
   const [prefix, setPrefix] = useState("province/datatable");
 
-  const url = "https://localhost:8243/sampel-api-provider/1";
+  // const url = "https://localhost:8243/sampel-api-provider/1";
+  const url = "http://localhost:8080";
   const headers: any = {
     "Content-Type": "application/json",
     "Internal-Key":
@@ -30,9 +31,9 @@ function Consumer(props: Props) {
   };
 
   const body = JSON.stringify({
-    enablePage: true,
-    start: 0,
-    length: 10,
+    enablePage: false,
+    page: 0,
+    limit: 1000,
   });
 
   const [status, setStatus] = useState("loading");
@@ -83,17 +84,36 @@ function Consumer(props: Props) {
   const deleteData = async (id: any) => {
     try {
       setLoadingDelete(id);
-      await fetch(`${url}/province/${id}`, { headers, method: "DELETE" })
+      await fetch(`${url}/province/${id}`, { method: "DELETE" })
         .then((res) => res.json())
         .then((res) => {
-          console.log(res, "<-- iki res ne ");
           setLoadingDelete(null);
+          if (res?.mesage === "Success") {
+            toast({
+              title: "Success",
+              description: "Delete data successfully",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+            fetchData();
+          } else {
+            toast({
+              title: "Error",
+              description: "Delete data failed",
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          }
         })
         .catch((err) => {
           setLoadingDelete(null);
           toast({
             title: "Error",
-            description: "Delete data failed",
+            description: err?.message,
             status: "error",
             duration: 9000,
             isClosable: true,
@@ -118,7 +138,7 @@ function Consumer(props: Props) {
           </button>
         ))}
 
-        <Addedit />
+        <Addedit fetchData={fetchData} headers={headers} />
       </div>
 
       {status === "loading" ? (

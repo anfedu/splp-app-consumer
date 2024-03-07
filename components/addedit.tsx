@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   useDisclosure,
@@ -9,13 +9,51 @@ import {
   ModalContent,
   ModalCloseButton,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 
-interface Props {}
+interface Props {
+  fetchData?: any;
+  headers?: any;
+}
 
 function Addedit(props: Props) {
-  const {} = props;
+  const { fetchData, headers } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const url = "http://localhost:8080/province";
+  const toast = useToast();
+  const [province, setProvince] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const postProvince = async () => {
+    setLoading(true);
+    await fetch(url, {
+      headers,
+      method: "POST",
+      body: JSON.stringify({
+        name: province,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setLoading(false);
+        onClose();
+        fetchData();
+        console.log(res, "<-- iki res ne ");
+      })
+      .catch((err) => {
+        setLoading(false);
+        onClose();
+        toast({
+          title: "Error",
+          description: err?.message,
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+          position: "top-right",
+        });
+      });
+  };
 
   return (
     <div>
@@ -35,7 +73,17 @@ function Addedit(props: Props) {
             <div>
               <div className="text-gray-600 font-semibold">Tambah Provinsi</div>
               <div className="mt-5">
-                <Input placeholder="Nama Provinsi" />
+                <Input
+                  placeholder="Nama Provinsi"
+                  name="province"
+                  value={province}
+                  onChange={(e) => setProvince(e.target.value)}
+                  onKeyPress={(event) => {
+                    if (event.key === "Enter") {
+                      postProvince();
+                    }
+                  }}
+                />
               </div>
             </div>
           </ModalBody>
@@ -43,7 +91,9 @@ function Addedit(props: Props) {
             <Button variant="outline" mr={2} onClick={onClose}>
               Batal
             </Button>
-            <Button>Simpan</Button>
+            <Button isLoading={loading} onClick={postProvince}>
+              Simpan
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
