@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import {
   Button,
-  useDisclosure,
   Modal,
   ModalBody,
   ModalFooter,
@@ -15,21 +14,38 @@ import {
 interface Props {
   fetchData?: any;
   headers?: any;
+  url?: string;
+  isOpen?: any;
+  onOpen?: any;
+  onClose?: any;
+  province?: string;
+  setProvince?: any;
+  rowId?: any;
+  setRowId?: any;
 }
 
 function Addedit(props: Props) {
-  const { fetchData, headers } = props;
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const url = "http://localhost:8080/province";
+  const {
+    fetchData,
+    headers,
+    url,
+    isOpen,
+    onOpen,
+    onClose,
+    province,
+    setProvince,
+    rowId,
+    setRowId,
+  } = props;
   const toast = useToast();
-  const [province, setProvince] = useState("");
 
   const [loading, setLoading] = useState(false);
   const postProvince = async () => {
     setLoading(true);
-    await fetch(url, {
+    const newUrl = rowId ? `${url}/province/${rowId}` : `${url}/province`;
+    await fetch(newUrl, {
       headers,
-      method: "POST",
+      method: rowId ? "PUT" : "POST",
       body: JSON.stringify({
         name: province,
       }),
@@ -39,16 +55,27 @@ function Addedit(props: Props) {
         setLoading(false);
         onClose();
         fetchData();
-        console.log(res, "<-- iki res ne ");
+        setProvince("");
+        setRowId(null);
+
+        toast({
+          title: "Success",
+          description: "Input data successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right",
+        });
       })
       .catch((err) => {
+        setProvince("");
         setLoading(false);
         onClose();
         toast({
           title: "Error",
           description: err?.message,
           status: "error",
-          duration: 9000,
+          duration: 3000,
           isClosable: true,
           position: "top-right",
         });
@@ -68,12 +95,13 @@ function Addedit(props: Props) {
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalCloseButton />
+          <ModalCloseButton _focus={{ boxShadow: "none" }} />
           <ModalBody>
             <div>
               <div className="text-gray-600 font-semibold">Tambah Provinsi</div>
               <div className="mt-5">
                 <Input
+                  autoFocus
                   placeholder="Nama Provinsi"
                   name="province"
                   value={province}

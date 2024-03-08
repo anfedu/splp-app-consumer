@@ -1,14 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/solid";
-import { IconButton, useToast } from "@chakra-ui/react";
+import { TrashIcon, PencilIcon } from "@heroicons/react/24/solid";
+import { IconButton, useDisclosure, useToast } from "@chakra-ui/react";
 import Addedit from "@/components/addedit";
 
 interface Props {}
-interface ProvinceInterface {}
+// interface ProvinceInterface {}
 
 function Consumer(props: Props) {
   const {} = props;
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [province, setProvince] = useState("");
+  const [rowId, setRowId] = useState(null);
 
   const options = [
     { label: "Provinsi", value: "province/datatable" },
@@ -34,6 +37,12 @@ function Consumer(props: Props) {
     enablePage: false,
     page: 0,
     limit: 1000,
+    orders: [
+      {
+        field: "id",
+        dir: "desc",
+      },
+    ],
   });
 
   const [status, setStatus] = useState("loading");
@@ -49,14 +58,6 @@ function Consumer(props: Props) {
         .then((res) => res.json())
         .then((res) => {
           setStatus("success");
-          toast({
-            title: "Success",
-            description: "Get data successfully",
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-            position: "top-right",
-          });
           setData(res?.data?.data);
         })
         .catch((err) => {
@@ -66,7 +67,7 @@ function Consumer(props: Props) {
             title: "Error",
             description: err.message,
             status: "error",
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top-right",
           });
@@ -93,7 +94,7 @@ function Consumer(props: Props) {
               title: "Success",
               description: "Delete data successfully",
               status: "success",
-              duration: 9000,
+              duration: 3000,
               isClosable: true,
               position: "top-right",
             });
@@ -103,7 +104,7 @@ function Consumer(props: Props) {
               title: "Error",
               description: "Delete data failed",
               status: "error",
-              duration: 9000,
+              duration: 3000,
               isClosable: true,
               position: "top-right",
             });
@@ -115,7 +116,7 @@ function Consumer(props: Props) {
             title: "Error",
             description: err?.message,
             status: "error",
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top-right",
           });
@@ -138,14 +139,25 @@ function Consumer(props: Props) {
           </button>
         ))}
 
-        <Addedit fetchData={fetchData} headers={headers} />
+        <Addedit
+          fetchData={fetchData}
+          headers={headers}
+          url={url}
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+          province={province}
+          setProvince={setProvince}
+          rowId={rowId}
+          setRowId={setRowId}
+        />
       </div>
 
       {status === "loading" ? (
         "Loading ..."
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {data?.map((item: any, key: any) => (
               <div
                 key={key}
@@ -153,14 +165,28 @@ function Consumer(props: Props) {
               >
                 <div className="font-normal">{item?.name}</div>
 
-                <IconButton
-                  aria-label="trash"
-                  variant="ghost"
-                  isLoading={item.id === loadingDelete}
-                  onClick={() => deleteData(item.id)}
-                >
-                  <TrashIcon className="w-5 text-red-400 cursor-pointer hover:bg-opacity-0.7" />
-                </IconButton>
+                <div className="flex items-center flex-end">
+                  <IconButton
+                    aria-label="edit"
+                    variant="ghost"
+                    isLoading={false}
+                    onClick={() => {
+                      setRowId(item.id);
+                      setProvince(item.name);
+                      onOpen();
+                    }}
+                  >
+                    <PencilIcon className="w-5 text-green-400 cursor-pointer hover:bg-opacity-0.7" />
+                  </IconButton>
+                  <IconButton
+                    aria-label="trash"
+                    variant="ghost"
+                    isLoading={item.id === loadingDelete}
+                    onClick={() => deleteData(item.id)}
+                  >
+                    <TrashIcon className="w-5 text-red-400 cursor-pointer hover:bg-opacity-0.7" />
+                  </IconButton>
+                </div>
               </div>
             ))}
           </div>
